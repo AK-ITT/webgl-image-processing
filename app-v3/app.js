@@ -87,6 +87,8 @@ void main() {
 
 const commonVertShaderSource = `
     attribute vec4 a_position;
+    attribute vec2 a_texcoord;
+    varying vec2 v_texcoord;
 
     // all shaders have a main function
     void main() {
@@ -94,6 +96,7 @@ const commonVertShaderSource = `
       // gl_Position is a special variable a vertex shader
       // is responsible for setting
       gl_Position = a_position;
+      v_texcoord = a_texcoord;
     }
 `  
 
@@ -119,7 +122,7 @@ uniform sampler2D u_texture;
 void main() {
   vec4 tex = texture2D(u_texture, v_texcoord);
   vec3 greyScale = vec3(.5, .5, .5);
-  gl_fragColor = vec4( vec3(dot( tex.rgb, greyScale)), tex.a);
+  gl_FragColor = vec4( vec3(dot( tex.rgb, greyScale)), tex.a);
 }
   `;
 
@@ -248,10 +251,15 @@ const drawImage = (drawInfo, program, positionBuffer, texcoordBuffer, positionLo
     texcoordLocation = gl.getAttribLocation(p, "a_texcoord");
   
     // lookup uniforms
+    matrixLocation = gl.getUniformLocation(p, "u_matrix");
     textureLocation = gl.getUniformLocation(p, "u_texture");
+
     gl.enableVertexAttribArray(positionLocation2);
     gl.vertexAttribPointer(positionLocation2, 2, gl.FLOAT, false, 0, 0);
   
+  } else {
+    matrixLocation = gl.getUniformLocation(program, "u_matrix");
+    textureLocation = gl.getUniformLocation(program, "u_texture");
   }
 
   // Setup the attributes to pull data from our buffers
